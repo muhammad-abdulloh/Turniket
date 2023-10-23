@@ -1,5 +1,8 @@
 ﻿namespace TaskSoliq.Domain.Enums
 {
+    /// <summary>
+    /// Employee Categories
+    /// </summary>
     public enum EmployeeCategory
     {
         Admin = 1,

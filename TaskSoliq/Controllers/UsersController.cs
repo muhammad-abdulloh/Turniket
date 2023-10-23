@@ -12,12 +12,20 @@ namespace TaskSoliq.Controllers
     {
         private TurniketDbContext _turniketDb;
         private IUserServices _userServices;
-        public UsersController(TurniketDbContext turniketDb, IUserServices userServices)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+
+        public UsersController(TurniketDbContext turniketDb, IUserServices userServices, IWebHostEnvironment webHostEnvironment)
         {
             _turniketDb = turniketDb;
             _userServices = userServices;
+            _webHostEnvironment = webHostEnvironment;
         }
 
+        /// <summary>
+        /// Get All Users in Database 
+        /// but not show change status deleted items :)
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public async ValueTask<IActionResult> GetAllUsers()
         {
@@ -32,6 +40,11 @@ namespace TaskSoliq.Controllers
             }
         }
 
+        /// <summary>
+        /// Create User
+        /// </summary>
+        /// <param name="addUser"></param>
+        /// <returns></returns>
         [HttpPost]
         public async ValueTask<IActionResult> CreateUser([FromForm] UserDTO addUser)
         {
@@ -47,6 +60,11 @@ namespace TaskSoliq.Controllers
             }
         }
 
+        /// <summary>
+        /// Get User By Id
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{Id:int}")]
         public async Task<IActionResult> GetUserById([FromRoute] int Id)
@@ -66,6 +84,12 @@ namespace TaskSoliq.Controllers
             }
         }
 
+        /// <summary>
+        /// Update Date
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <param name="updatedModel"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("{Id:int}")]
         public async Task<IActionResult> UpdateUser([FromRoute] int Id, UserDTO updatedModel)
@@ -92,6 +116,11 @@ namespace TaskSoliq.Controllers
         // nechta son berilsa eng tepadagi shularni ko'rvoladigan
         // va nechta son berilsa eng pasidan yani eng yangilarini chiqarberadigan api chiqaraman
 
+        /// <summary>
+        /// dont Delete date but change status :)
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("{Id:int}")]
         public async Task<IActionResult> DeleteUser(int Id)
@@ -108,6 +137,11 @@ namespace TaskSoliq.Controllers
             }
         }
 
+        /// <summary>
+        /// Really delete data 
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("{Id:int}")]
         public async Task<IActionResult> DeepDeleteUser(int Id)
@@ -123,5 +157,22 @@ namespace TaskSoliq.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // Upload Excel file
+
+        /// <summary>
+        /// Upload Excel File
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        [HttpPost("upload")]
+        [DisableRequestSizeLimit]
+        public async Task<ActionResult> Upload(CancellationToken ct)
+        {
+
+            return Ok();
+        }
+
+
     }
 }

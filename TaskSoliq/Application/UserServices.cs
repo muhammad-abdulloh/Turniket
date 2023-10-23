@@ -4,6 +4,8 @@ using TaskSoliq.Domain.Entities;
 using TaskSoliq.Domain.Enums;
 using TaskSoliq.Infrastructure;
 
+#pragma warning disable
+
 namespace TaskSoliq.Application
 {
     public class UserServices : IUserServices
@@ -14,6 +16,11 @@ namespace TaskSoliq.Application
             _turniketDb = turniketDb;
         }
 
+        /// <summary>
+        /// Create user service
+        /// </summary>
+        /// <param name="addUser"></param>
+        /// <returns></returns>
         public async ValueTask<User> CreateUser(UserDTO addUser)
         {
             User user = new User()
@@ -24,7 +31,8 @@ namespace TaskSoliq.Application
                 Age = addUser.Age,
                 EmployeeCategory = (EmployeeCategory)addUser.EmployeeCategory,
                 ImageUrl = "Upload/images/binarsa.jpg",
-                Status = Status.Created
+                Status = Status.Created,
+                CreatedDate = DateTime.Now,
             };
             await _turniketDb.Users.AddAsync(user);
             await _turniketDb.SaveChangesAsync();
@@ -33,6 +41,11 @@ namespace TaskSoliq.Application
 
         }
 
+        /// <summary>
+        /// Really delete user in database
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         public async ValueTask<bool> DeepDeleteUser(int Id)
         {
             User user = await _turniketDb.Users.FirstOrDefaultAsync(x => x.Id == Id);
@@ -46,6 +59,11 @@ namespace TaskSoliq.Application
             return false;
         }
 
+        /// <summary>
+        /// Delete user and update status
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         public async ValueTask<bool> DeleteUser(int Id)
         {
             User user = await _turniketDb.Users.FirstOrDefaultAsync(x => x.Id == Id);
@@ -53,11 +71,16 @@ namespace TaskSoliq.Application
                 return false;
 
             user.Status = Status.Deleted;
+            user.DeletedDate = DateTime.Now;
             await _turniketDb.SaveChangesAsync();
             return true;
 
         }
 
+        /// <summary>
+        /// GetAll users business logic
+        /// </summary>
+        /// <returns></returns>
         public async ValueTask<IEnumerable<User>> GetAllUsers()
         {
             IEnumerable<User> users = await _turniketDb.Users
@@ -78,6 +101,11 @@ namespace TaskSoliq.Application
             return users;
         }
 
+        /// <summary>
+        /// Get user by id service
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
         public async ValueTask<User> GetUserById(int Id)
         {
             User user = await _turniketDb.Users.FirstOrDefaultAsync(x => x.Id == Id);
@@ -88,6 +116,12 @@ namespace TaskSoliq.Application
             return user;
         }
 
+        /// <summary>
+        /// Update User Service
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <param name="updatedModel"></param>
+        /// <returns></returns>
         public async ValueTask<User> UpdateUser(int Id, UserDTO updatedModel)
         {
             User user = await _turniketDb.Users.FirstOrDefaultAsync(x => x.Id == Id);
@@ -99,6 +133,7 @@ namespace TaskSoliq.Application
                 user.Age = updatedModel.Age;
                 user.EmployeeCategory = (EmployeeCategory)updatedModel.EmployeeCategory;
                 user.Status = Status.Updated;
+                user.ModifyDate = DateTime.Now;
 
                 await _turniketDb.SaveChangesAsync();
                 return user;

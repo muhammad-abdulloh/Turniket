@@ -3,9 +3,8 @@ using TaskSoliq.Domain.Enums;
 
 namespace TaskSoliq.Domain.Entities
 {
-    public class User
+    public class User : BaseEntity
     {
-        public int Id { get; set; }
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public int? Age { get; set; }
@@ -16,6 +15,7 @@ namespace TaskSoliq.Domain.Entities
 
         [Required]
         public Status Status { get; set; }
+
 
     }
 }

@@ -2,6 +2,9 @@
 
 namespace TaskSoliq.Domain.DTOs
 {
+    /// <summary>
+    /// input dates
+    /// </summary>
     public class UserDTO
     {
         public string? FirstName { get; set; }
