@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Fingers10.ExcelExport.ActionResults;
+using Fingers10.ExcelExport.Attributes;
+using Microsoft.AspNetCore.Mvc;
 using TaskSoliq.Application;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
@@ -190,5 +192,39 @@ namespace TaskSoliq.Controllers
             return BadRequest(result);
         }
 
+        [HttpGet]
+        public async ValueTask<IActionResult> DownloadFile()
+        {
+            IEnumerable<User> result = await _userServices.ReallyGetAllUsers();
+
+            //List<User> users = new List<User>();
+
+            //users.AddRange(result);
+
+            //List<Test> tests = new List<Test>() 
+            //{ 
+            //    new Test() {ID = 1, Name = "Birbri", Description = "desc"},
+            //    new Test() {ID = 2, Name = "Ikki", Description = "dasdad"},
+            //    new Test() {ID = 3, Name = "Uch", Description = "asdsadjasjad"},
+            //};
+
+            Thread.Sleep(5000);
+
+            var natija = new ExcelResult<User>(result, "Sheet1", "UsersReport");
+
+            Thread.Sleep(5000);
+
+            return natija;
+        }
+    }
+
+    public class Test
+    {
+        [IncludeInReport(Order = 1)]
+        public int ID { get; set; }
+        [IncludeInReport(Order = 2)]
+        public string Name { get; set; }
+        [IncludeInReport(Order = 3)]
+        public string Description { get; set; }
     }
 }
