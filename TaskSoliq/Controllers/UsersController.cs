@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
-using TaskSoliq.Domain;
+using TaskSoliq.Domain.DTOs;
+using TaskSoliq.Domain.Entities;
 using TaskSoliq.Infrastructure;
+using TaskSoliq.Domain.Enums;
 
 namespace TaskSoliq.Controllers
 {
@@ -20,11 +22,12 @@ namespace TaskSoliq.Controllers
         [HttpGet]
         public async Task<IActionResult> GetContacts()
         {
-            return Ok(await _turniketDb.Users.ToListAsync());
+            var users = await _turniketDb.Users.ToListAsync();
+            return Ok(users);
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddContact(UserDTO addUser)
+        public async Task<IActionResult> AddContact([FromForm] UserDTO addUser)
         {
             var user = new User()
             {
@@ -32,8 +35,9 @@ namespace TaskSoliq.Controllers
                 FirstName = addUser.FirstName,
                 LastName = addUser.LastName,
                 Age = addUser.Age,
-                IsEmployee = addUser.IsEmployee,
-                ImageUrl = "Upload/images/binarsa.jpg"
+                EmployeeCategory = (EmployeeCategory)addUser.EmployeeCategory,
+                ImageUrl = "Upload/images/binarsa.jpg",
+                Status = Status.Created
             };
             await _turniketDb.Users.AddAsync(user);
             await _turniketDb.SaveChangesAsync();
@@ -63,7 +67,8 @@ namespace TaskSoliq.Controllers
                 user.FirstName = updatedModel.FirstName;
                 user.LastName = updatedModel.LastName;
                 user.Age = updatedModel.Age;
-                user.IsEmployee = updatedModel.IsEmployee;
+                user.EmployeeCategory = (EmployeeCategory)updatedModel.EmployeeCategory;
+                user.Status = Status.Updated;
 
                 await _turniketDb.SaveChangesAsync(); 
                 return Ok(user);
@@ -82,6 +87,26 @@ namespace TaskSoliq.Controllers
         [HttpDelete]
         [Route("{Id:int}")]
         public async Task<IActionResult> DeleteUser(int Id)
+        {
+            // delete qilishda uni databasedan o'chirmaslik kerak statusini o'zgartirishim kerak
+            // va delete qilinganda statusi o'zgaradi 
+            // get qiganda va get all qiganda ko'rinmaydi bu eng zo'r yo'li
+            // delete user bo'ladi va deeep delete user bo'ladi
+
+            var user = await _turniketDb.Users.FindAsync(Id);
+            if (user != null)
+            {
+                user.Status = Status.Deleted;
+                await _turniketDb.SaveChangesAsync();
+                return Ok(user);
+            }
+
+            return NotFound("Manba topilmadi");
+        }
+
+        [HttpDelete]
+        [Route("{Id:int}")]
+        public async Task<IActionResult> DeepDeleteUser(int Id)
         {
             // delete qilishda uni databasedan o'chirmaslik kerak statusini o'zgartirishim kerak
             // va delete qilinganda statusi o'zgaradi 

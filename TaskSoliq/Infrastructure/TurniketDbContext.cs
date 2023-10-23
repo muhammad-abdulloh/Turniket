@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TaskSoliq.Domain;
+using TaskSoliq.Domain.Entities;
 
 namespace TaskSoliq.Infrastructure
 {
@@ -7,6 +7,6 @@ namespace TaskSoliq.Infrastructure
     {
         public TurniketDbContext(DbContextOptions<TurniketDbContext> options) : base(options) { }
 
-        public DbSet<User> Users { get; set; } = null;
+        public DbSet<User> Users { get; set; }
     }
 }
