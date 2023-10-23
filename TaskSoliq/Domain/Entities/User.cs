@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TaskSoliq.Domain.Enums;
 
 namespace TaskSoliq.Domain.Entities
 {

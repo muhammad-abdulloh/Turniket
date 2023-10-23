@@ -1,13 +1,7 @@
-﻿using ExcelDataReader;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-using System.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using TaskSoliq.Application;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
-using TaskSoliq.Infrastructure;
-using ExcelDataReader;
-using TaskSoliq.Domain.Enums;
 
 namespace TaskSoliq.Controllers
 {
@@ -15,18 +9,11 @@ namespace TaskSoliq.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private TurniketDbContext _turniketDb;
         private IUserServices _userServices;
-        private readonly IWebHostEnvironment hostEnvironment;
-        /*IExcelDataReaderreader;>*/
-        IExcelDataReader reader;
-         
 
-        public UsersController(TurniketDbContext turniketDb, IUserServices userServices, IWebHostEnvironment webHostEnvironment)
+        public UsersController(IUserServices userServices)
         {
-            _turniketDb = turniketDb;
             _userServices = userServices;
-            hostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
@@ -61,7 +48,7 @@ namespace TaskSoliq.Controllers
 
                 return Ok(users);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -195,87 +182,13 @@ namespace TaskSoliq.Controllers
         [HttpPost]
         public async ValueTask<IActionResult> UploadFile(IFormFile file)
         {
-            try
-            {
-                // Check the File is received
+            var result = await _userServices.UploadFile(file);
 
-                if (file == null)
-                    return NotFound("File is Not Received...");
+            if (result == "Created")
+                return Ok("Muvaffaqiyati EXCEL ma'lumotlari bazaga saqlandi");
 
-
-                // Create the Directory if it is not exist
-                string dirPath = Path.Combine(hostEnvironment.WebRootPath, "ReceivedReports");
-                if (!Directory.Exists(dirPath))
-                {
-                    Directory.CreateDirectory(dirPath);
-                }
-
-                // MAke sure that only Excel file is used 
-                string dataFileName = Path.GetFileName(file.FileName);
-
-                string extension = Path.GetExtension(dataFileName);
-
-                string[] allowedExtsnions = new string[] { ".xls", ".xlsx" };
-
-                if (!allowedExtsnions.Contains(extension))
-                    return BadRequest("Sorry! This file is not allowed," +
-                      "make sure that file having extension as either.xls or.xlsx is uploaded.");
-
-                // Make a Copy of the Posted File from the Received HTTP Request
-                string saveToPath = Path.Combine(dirPath, dataFileName);
-
-                using (FileStream stream = new FileStream(saveToPath, FileMode.Create))
-                {
-                    file.CopyTo(stream);
-                }
-
-                // USe this to handle Encodeing differences in .NET Core
-                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-                // read the excel file
-                using (var stream = new FileStream(saveToPath, FileMode.Open))
-                {
-                    if (extension == ".xls")
-                        reader = ExcelReaderFactory.CreateBinaryReader(stream);
-                    else
-                        reader = ExcelReaderFactory.CreateOpenXmlReader(stream);
-
-                    DataSet ds = new DataSet();
-                    ds = reader.AsDataSet();
-                    reader.Close();
-
-                    if (ds != null && ds.Tables.Count > 0)
-                    {
-                        // Read the the Table
-                        DataTable serviceDetails = ds.Tables[0];
-                        for (int i = 1; i < serviceDetails.Rows.Count; i++)
-                        {
-                            User details = new User();
-
-                            details.FirstName = serviceDetails.Rows[i][0].ToString();
-                            details.LastName = serviceDetails.Rows[i][1].ToString();
-                            details.Age = Convert.ToInt32(serviceDetails.Rows[i][2].ToString());
-                            details.EmployeeCategory = Convert.ToInt32(serviceDetails.Rows[i][3].ToString());
-                            details.ImageUrl = "wwwroot/images/rasm.jpg";
-                            details.Status = (int)Status.Updated;
-
-                            details.CreatedDate = DateTime.Now;
-
-
-                            // Add the record in Database
-                            await _turniketDb.Users.AddAsync(details);
-                            await _turniketDb.SaveChangesAsync();
-                        }
-                    }
-                }
-                return Ok("Davay");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return BadRequest(result);
         }
-
-
 
     }
 }

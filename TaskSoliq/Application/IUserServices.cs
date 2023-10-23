@@ -12,5 +12,7 @@ namespace TaskSoliq.Application
         public ValueTask<User> UpdateUser(int Id, UserDTO updatedModel);
         public ValueTask<bool> DeleteUser(int Id);
         public ValueTask<bool> DeepDeleteUser(int Id);
+
+        public ValueTask<string> UploadFile(IFormFile file);
     }
 }
