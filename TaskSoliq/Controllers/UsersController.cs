@@ -41,6 +41,25 @@ namespace TaskSoliq.Controllers
         }
 
         /// <summary>
+        /// geta all users
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async ValueTask<IActionResult> ReallyGetAllUsers()
+        {
+            try
+            {
+                IEnumerable<User> users = await _userServices.ReallyGetAllUsers();
+
+                return Ok(users);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Create User
         /// </summary>
         /// <param name="addUser"></param>

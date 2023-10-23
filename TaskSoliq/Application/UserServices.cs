@@ -102,6 +102,17 @@ namespace TaskSoliq.Application
         }
 
         /// <summary>
+        /// Really get all users )
+        /// </summary>
+        /// <returns></returns>
+        public async ValueTask<IEnumerable<User>> ReallyGetAllUsers()
+        {
+            IEnumerable<User> users = await _turniketDb.Users.ToListAsync();
+
+            return users;
+        }
+
+        /// <summary>
         /// Get user by id service
         /// </summary>
         /// <param name="Id"></param>
