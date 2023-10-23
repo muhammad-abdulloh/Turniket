@@ -1,9 +1,12 @@
-﻿using Fingers10.ExcelExport.ActionResults;
+﻿using ClosedXML.Excel;
+using Fingers10.ExcelExport.ActionResults;
 using Fingers10.ExcelExport.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using TaskSoliq.Application;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
+using TaskSoliq.Infrastructure;
 
 namespace TaskSoliq.Controllers
 {
@@ -11,11 +14,13 @@ namespace TaskSoliq.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private TurniketDbContext _turniketDb;
         private IUserServices _userServices;
 
-        public UsersController(IUserServices userServices)
+        public UsersController(IUserServices userServices, TurniketDbContext turniketDbContext)
         {
             _userServices = userServices;
+            _turniketDb = turniketDbContext;
         }
 
         /// <summary>
@@ -192,39 +197,50 @@ namespace TaskSoliq.Controllers
             return BadRequest(result);
         }
 
-        [HttpGet]
-        public async ValueTask<IActionResult> DownloadFile()
+        [HttpPost]
+        public async ValueTask<IActionResult> Export()
         {
-            IEnumerable<User> result = await _userServices.ReallyGetAllUsers();
+            DataTable dt = new DataTable("Grid");
+            dt.Columns.AddRange(new DataColumn[10] { new DataColumn("Id"),
+                                        new DataColumn("FirstName"),
+                                        new DataColumn("LastName"),
+                                        new DataColumn("Age"), 
+                                        new DataColumn("EmployeeCategory"), 
+                                        new DataColumn("ImageUrl"), 
+                                        new DataColumn("Status"), 
+                                        new DataColumn("CreatedDate"), 
+                                        new DataColumn("ModifyDate"), 
+                                        new DataColumn("DeletedDate"), 
+            });
 
-            //List<User> users = new List<User>();
+            var users = from user in _turniketDb.Users.Take(40)
+                            select user;
 
-            //users.AddRange(result);
+            foreach (var user in users)
+            {
+                dt.Rows.Add(user.Id, 
+                            user.FirstName, 
+                            user.LastName, 
+                            user.Age,
+                            user.EmployeeCategory,
+                            user.ImageUrl,
+                            user.Status,
+                            user.CreatedDate,
+                            user.ModifyDate,
+                            user.DeletedDate
+                            );
+            }
 
-            //List<Test> tests = new List<Test>() 
-            //{ 
-            //    new Test() {ID = 1, Name = "Birbri", Description = "desc"},
-            //    new Test() {ID = 2, Name = "Ikki", Description = "dasdad"},
-            //    new Test() {ID = 3, Name = "Uch", Description = "asdsadjasjad"},
-            //};
-
-            Thread.Sleep(5000);
-
-            var natija = new ExcelResult<User>(result, "Sheet1", "UsersReport");
-
-            Thread.Sleep(5000);
-
-            return natija;
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Grid.xlsx");
+                }
+            }
         }
     }
 
-    public class Test
-    {
-        [IncludeInReport(Order = 1)]
-        public int ID { get; set; }
-        [IncludeInReport(Order = 2)]
-        public string Name { get; set; }
-        [IncludeInReport(Order = 3)]
-        public string Description { get; set; }
-    }
 }
