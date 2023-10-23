@@ -2,6 +2,7 @@
 using Fingers10.ExcelExport.ActionResults;
 using Fingers10.ExcelExport.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting.Internal;
 using System.Data;
 using TaskSoliq.Application;
 using TaskSoliq.Domain.DTOs;
@@ -16,11 +17,14 @@ namespace TaskSoliq.Controllers
     {
         private TurniketDbContext _turniketDb;
         private IUserServices _userServices;
+        private readonly IWebHostEnvironment hostEnvironment;
 
-        public UsersController(IUserServices userServices, TurniketDbContext turniketDbContext)
+
+        public UsersController(IUserServices userServices, TurniketDbContext turniketDbContext, IWebHostEnvironment hostEnvironment)
         {
             _userServices = userServices;
             _turniketDb = turniketDbContext;
+            this.hostEnvironment = hostEnvironment;
         }
 
         /// <summary>
@@ -241,6 +245,20 @@ namespace TaskSoliq.Controllers
                 }
             }
         }
+
+        [HttpPost("UploadFile")]
+        public async ValueTask<string> UploadFileImage(IFormFile file)
+        {
+            string fileName = file.FileName;
+            Guid GuidId = Guid.NewGuid();
+            string path = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + GuidId + fileName);
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+            return fileName;
+        }
+
     }
 
 }
