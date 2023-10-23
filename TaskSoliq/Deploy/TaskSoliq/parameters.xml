@@ -1,0 +1,8 @@
+﻿<parameters>
+  <parameter name="IIS Web Application Name" value="turniket" tags="IisApp">
+    <parameterEntry kind="ProviderPath" scope="IisApp" match="^G:\\NajotTalim\\sources\\TaskSoliq\\TaskSoliq\\obj\\Release\\net6\.0\\win-x86\\PubTmp\\Out\\$" />
+  </parameter>
+  <parameter name="TaskSoliq.Infrastructure.TurniketDbContext" value="Server=.;Database=SoliqTurniketProductionDb;integrated security=True;MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=True;" tags="dbfullsql">
+    <parameterEntry kind="ProviderPath" scope="dbfullsql" match="^G:\\NajotTalim\\sources\\TaskSoliq\\TaskSoliq\\obj\\Release\\net6\.0\\win-x86\\PubTmp\\EFSQLScripts\\TaskSoliq\.Infrastructure\.TurniketDbContext\.sql$" />
+  </parameter>
+</parameters>

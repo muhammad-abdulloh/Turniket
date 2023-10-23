@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<parameters>
+  <setParameter name="IIS Web Application Name" value="turniket" />
+  <setParameter name="TaskSoliq.Infrastructure.TurniketDbContext" value="Server=.;Database=SoliqTurniketProductionDb;integrated security=True;MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=True;" />
+</parameters>
