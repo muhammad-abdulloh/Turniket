@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TaskSoliq.Application;
 using TaskSoliq.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,10 +11,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IUserServices, UserServices>();
+
 builder.Services.AddDbContext<TurniketDbContext>(option =>
 {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
 
 var app = builder.Build();
 

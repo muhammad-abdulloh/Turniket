@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
+﻿using Microsoft.AspNetCore.Mvc;
+using TaskSoliq.Application;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
 using TaskSoliq.Infrastructure;
-using TaskSoliq.Domain.Enums;
 
 namespace TaskSoliq.Controllers
 {
@@ -14,67 +11,78 @@ namespace TaskSoliq.Controllers
     public class UsersController : ControllerBase
     {
         private TurniketDbContext _turniketDb;
-        public UsersController(TurniketDbContext turniketDb)
+        private IUserServices _userServices;
+        public UsersController(TurniketDbContext turniketDb, IUserServices userServices)
         {
             _turniketDb = turniketDb;
+            _userServices = userServices;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetContacts()
+        public async ValueTask<IActionResult> GetAllUsers()
         {
-            var users = await _turniketDb.Users.ToListAsync();
-            return Ok(users);
+            try
+            {
+                IEnumerable<User> users = await _userServices.GetAllUsers();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddContact([FromForm] UserDTO addUser)
+        public async ValueTask<IActionResult> CreateUser([FromForm] UserDTO addUser)
         {
-            var user = new User()
+            try
             {
-                Id = 0,
-                FirstName = addUser.FirstName,
-                LastName = addUser.LastName,
-                Age = addUser.Age,
-                EmployeeCategory = (EmployeeCategory)addUser.EmployeeCategory,
-                ImageUrl = "Upload/images/binarsa.jpg",
-                Status = Status.Created
-            };
-            await _turniketDb.Users.AddAsync(user);
-            await _turniketDb.SaveChangesAsync();
-            return Ok(user);
+                User user = await _userServices.CreateUser(addUser);
+
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("{Id:int}")]
         public async Task<IActionResult> GetUserById([FromRoute] int Id)
         {
-            var user = await _turniketDb.Users.FindAsync(Id);
+            try
+            {
+                User user = await _userServices.GetUserById(Id);
 
-            if (user == null)
-                return NotFound("Ma'lumot mavjud emas");
+                if (user == null)
+                    return NotFound("Manba topilmadi");
 
-            return Ok(user);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut]
         [Route("{Id:int}")]
         public async Task<IActionResult> UpdateUser([FromRoute] int Id, UserDTO updatedModel)
         {
-            var user = await _turniketDb.Users.FindAsync(Id);
-
-            if (user != null)
+            try
             {
-                user.FirstName = updatedModel.FirstName;
-                user.LastName = updatedModel.LastName;
-                user.Age = updatedModel.Age;
-                user.EmployeeCategory = (EmployeeCategory)updatedModel.EmployeeCategory;
-                user.Status = Status.Updated;
+                User user = await _userServices.UpdateUser(Id, updatedModel);
 
-                await _turniketDb.SaveChangesAsync(); 
-                return Ok(user);
+                if (user != null)
+                    return Ok(user);
+
+                return NotFound("Manba topilmadi");
             }
-               
-            return NotFound("Manba topilmadi");
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // Patch qilishim kerak har bir propertysini update qilish uchun bir nechta api lar bo'ladi zo'r
@@ -88,40 +96,32 @@ namespace TaskSoliq.Controllers
         [Route("{Id:int}")]
         public async Task<IActionResult> DeleteUser(int Id)
         {
-            // delete qilishda uni databasedan o'chirmaslik kerak statusini o'zgartirishim kerak
-            // va delete qilinganda statusi o'zgaradi 
-            // get qiganda va get all qiganda ko'rinmaydi bu eng zo'r yo'li
-            // delete user bo'ladi va deeep delete user bo'ladi
-
-            var user = await _turniketDb.Users.FindAsync(Id);
-            if (user != null)
+            try
             {
-                user.Status = Status.Deleted;
-                await _turniketDb.SaveChangesAsync();
-                return Ok(user);
-            }
+                bool user = await _userServices.DeleteUser(Id);
 
-            return NotFound("Manba topilmadi");
+                return user ? Ok("Manba o'chirildi") : NotFound("Manba topilmadi");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete]
         [Route("{Id:int}")]
         public async Task<IActionResult> DeepDeleteUser(int Id)
         {
-            // delete qilishda uni databasedan o'chirmaslik kerak statusini o'zgartirishim kerak
-            // va delete qilinganda statusi o'zgaradi 
-            // get qiganda va get all qiganda ko'rinmaydi bu eng zo'r yo'li
-            // delete user bo'ladi va deeep delete user bo'ladi
-
-            var user = await _turniketDb.Users.FindAsync(Id);
-            if (user != null)
+            try
             {
-                _turniketDb.Remove(user);
-                await _turniketDb.SaveChangesAsync();
-                return Ok(user);
-            }
+                bool user = await _userServices.DeepDeleteUser(Id);
 
-            return NotFound("Manba topilmadi");
+                return user ? Ok("Manba tag tugi bilan o'chirildi") : NotFound("Manba topilmadi");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
