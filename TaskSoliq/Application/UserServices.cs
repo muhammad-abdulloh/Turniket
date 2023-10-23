@@ -29,9 +29,9 @@ namespace TaskSoliq.Application
                 FirstName = addUser.FirstName,
                 LastName = addUser.LastName,
                 Age = addUser.Age,
-                EmployeeCategory = (EmployeeCategory)addUser.EmployeeCategory,
+                EmployeeCategory = (int)addUser.EmployeeCategory,
                 ImageUrl = "Upload/images/binarsa.jpg",
-                Status = Status.Created,
+                Status = (int)Status.Created,
                 CreatedDate = DateTime.Now,
             };
             await _turniketDb.Users.AddAsync(user);
@@ -67,10 +67,10 @@ namespace TaskSoliq.Application
         public async ValueTask<bool> DeleteUser(int Id)
         {
             User user = await _turniketDb.Users.FirstOrDefaultAsync(x => x.Id == Id);
-            if (user == null || user.Status == Status.Deleted)
+            if (user == null || (int)user.Status == (int)Status.Deleted)
                 return false;
 
-            user.Status = Status.Deleted;
+            user.Status = (int)Status.Deleted;
             user.DeletedDate = DateTime.Now;
             await _turniketDb.SaveChangesAsync();
             return true;
@@ -95,7 +95,7 @@ namespace TaskSoliq.Application
                                                 Status = x.Status,
                                             }
                                             )
-                                            .Where(x => x.Status != Status.Deleted)
+                                            .Where(x => (int)x.Status != (int)Status.Deleted)
                                             .ToListAsync();
 
             return users;
@@ -121,7 +121,7 @@ namespace TaskSoliq.Application
         {
             User user = await _turniketDb.Users.FirstOrDefaultAsync(x => x.Id == Id);
 
-            if (user == null || user.Status == Status.Deleted)
+            if (user == null || (int)user.Status == (int)Status.Deleted)
                 return null;
 
             return user;
@@ -142,8 +142,8 @@ namespace TaskSoliq.Application
                 user.FirstName = updatedModel.FirstName;
                 user.LastName = updatedModel.LastName;
                 user.Age = updatedModel.Age;
-                user.EmployeeCategory = (EmployeeCategory)updatedModel.EmployeeCategory;
-                user.Status = Status.Updated;
+                user.EmployeeCategory = (int)updatedModel.EmployeeCategory;
+                user.Status = (int)Status.Updated;
                 user.ModifyDate = DateTime.Now;
 
                 await _turniketDb.SaveChangesAsync();

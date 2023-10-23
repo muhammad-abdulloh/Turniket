@@ -10,11 +10,11 @@ namespace TaskSoliq.Domain.Entities
         public int? Age { get; set; }
 
         [Required]
-        public EmployeeCategory EmployeeCategory { get; set; }
+        public int EmployeeCategory { get; set; }
         public string? ImageUrl { get; set; }
 
         [Required]
-        public Status Status { get; set; }
+        public int Status { get; set; }
 
 
     }

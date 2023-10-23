@@ -26,6 +26,11 @@ else
         options.UseSqlServer(builder.Configuration.GetConnectionString("ProductionConnection") ?? throw new InvalidOperationException("Connection string 'ProductionConnection' not found.")));
 }
 
+builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+{
+    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+}));
+
 
 var app = builder.Build();
 
@@ -45,6 +50,7 @@ else
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseCors("corsapp");
 
 app.UseStaticFiles();
 
