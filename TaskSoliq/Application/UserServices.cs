@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using ExcelDataReader;
+﻿using ExcelDataReader;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using TaskSoliq.Domain.DTOs;
@@ -183,6 +182,11 @@ namespace TaskSoliq.Application
             return null;
         }
 
+        /// <summary>
+        /// upload file
+        /// </summary>
+        /// <param name="files"></param>
+        /// <returns></returns>
         public async ValueTask<string> UploadFile(ExcelAndImage files)
         {
             try
@@ -275,6 +279,10 @@ namespace TaskSoliq.Application
 
         }
 
+        /// <summary>
+        /// database to excel
+        /// </summary>
+        /// <returns></returns>
         public async ValueTask<DataTable> ExportDatabaseToExcel()
         {
             DataTable dt = new DataTable("Grid");

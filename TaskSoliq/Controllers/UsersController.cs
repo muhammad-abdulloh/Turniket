@@ -1,14 +1,10 @@
 ﻿using ClosedXML.Excel;
-using Fingers10.ExcelExport.ActionResults;
-using Fingers10.ExcelExport.Attributes;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting.Internal;
 using System.Data;
 using TaskSoliq.Application;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
 using TaskSoliq.Domain.External;
-using TaskSoliq.Infrastructure;
 
 namespace TaskSoliq.Controllers
 {
@@ -113,7 +109,7 @@ namespace TaskSoliq.Controllers
         /// <returns></returns>
         [HttpPut]
         [Route("{Id:int}")]
-        public async Task<IActionResult> UpdateUser([FromRoute] int Id,[FromForm] UserDTO updatedModel)
+        public async Task<IActionResult> UpdateUser([FromRoute] int Id, [FromForm] UserDTO updatedModel)
         {
             try
             {
@@ -129,13 +125,6 @@ namespace TaskSoliq.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-        // Patch qilishim kerak har bir propertysini update qilish uchun bir nechta api lar bo'ladi zo'r
-        // get gilishim kerak top 10 taso top 5 tasi top 20 talikni chiqaruvchi 
-        // yana get qilaman ohirgi turgan top 5 talik top 10 talik top 20 talikni olish uchun 
-        // va yana get qilishim kerak
-        // nechta son berilsa eng tepadagi shularni ko'rvoladigan
-        // va nechta son berilsa eng pasidan yani eng yangilarini chiqarberadigan api chiqaraman
 
         /// <summary>
         /// dont Delete date but change status :)
@@ -187,7 +176,7 @@ namespace TaskSoliq.Controllers
         [HttpPost]
         public async ValueTask<IActionResult> ImportExcelToDataBase([FromForm] ExcelAndImage files)
         {
-           try
+            try
             {
                 var result = await _userServices.UploadFile(files);
 
@@ -226,7 +215,7 @@ namespace TaskSoliq.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        
+
         }
 
     }

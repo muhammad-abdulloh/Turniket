@@ -1,6 +1,4 @@
-﻿using Fingers10.ExcelExport.Attributes;
-
-namespace TaskSoliq.Domain.Entities
+﻿namespace TaskSoliq.Domain.Entities
 {
     /// <summary>
     /// most common base entity

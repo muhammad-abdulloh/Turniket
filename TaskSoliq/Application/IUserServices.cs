@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Data;
+﻿using System.Data;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
 using TaskSoliq.Domain.External;
