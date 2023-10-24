@@ -191,7 +191,7 @@ namespace TaskSoliq.Controllers
         /// <param name="ct"></param>
         /// <returns></returns>
         [HttpPost]
-        public async ValueTask<IActionResult> UploadFile(IFormFile file)
+        public async ValueTask<IActionResult> ImportExcelToDataBase(IFormFile file)
         {
             var result = await _userServices.UploadFile(file);
 
@@ -202,61 +202,37 @@ namespace TaskSoliq.Controllers
         }
 
         [HttpPost]
-        public async ValueTask<IActionResult> Export()
+        public async ValueTask<IActionResult> ExportDataBaseToExcel()
         {
-            DataTable dt = new DataTable("Grid");
-            dt.Columns.AddRange(new DataColumn[10] { new DataColumn("Id"),
-                                        new DataColumn("FirstName"),
-                                        new DataColumn("LastName"),
-                                        new DataColumn("Age"), 
-                                        new DataColumn("EmployeeCategory"), 
-                                        new DataColumn("ImageUrl"), 
-                                        new DataColumn("Status"), 
-                                        new DataColumn("CreatedDate"), 
-                                        new DataColumn("ModifyDate"), 
-                                        new DataColumn("DeletedDate"), 
-            });
-
-            var users = from user in _turniketDb.Users.Take(40)
-                            select user;
-
-            foreach (var user in users)
-            {
-                dt.Rows.Add(user.Id, 
-                            user.FirstName, 
-                            user.LastName, 
-                            user.Age,
-                            user.EmployeeCategory,
-                            user.ImageUrl,
-                            user.Status,
-                            user.CreatedDate,
-                            user.ModifyDate,
-                            user.DeletedDate
-                            );
-            }
+            DataTable result = await _userServices.ExportDatabaseToExcel();
 
             using (XLWorkbook wb = new XLWorkbook())
             {
-                wb.Worksheets.Add(dt);
+                wb.Worksheets.Add(result);
                 using (MemoryStream stream = new MemoryStream())
                 {
                     wb.SaveAs(stream);
                     return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Grid.xlsx");
                 }
             }
+        
         }
 
         [HttpPost("UploadFile")]
-        public async ValueTask<string> UploadFileImage(IFormFile file)
+        public async ValueTask<IActionResult> UploadFileImage(IFormFile file)
         {
-            string fileName = file.FileName;
-            Guid GuidId = Guid.NewGuid();
-            string path = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + GuidId + fileName);
-            using (var stream = new FileStream(path, FileMode.Create))
+            if (file != null)
             {
-                await file.CopyToAsync(stream);
+                string fileName = file.FileName;
+                Guid GuidId = Guid.NewGuid();
+                string path = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + GuidId + fileName);
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                return Ok(fileName);
             }
-            return fileName;
+            return NotFound("Topilmadi file");
         }
 
     }

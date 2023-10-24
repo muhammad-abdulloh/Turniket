@@ -1,10 +1,13 @@
-﻿using ExcelDataReader;
+﻿using ClosedXML.Excel;
+using ExcelDataReader;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
 using TaskSoliq.Domain.Enums;
 using TaskSoliq.Infrastructure;
+
 
 #pragma warning disable
 
@@ -29,6 +32,19 @@ namespace TaskSoliq.Application
         /// <returns></returns>
         public async ValueTask<User> CreateUser(UserDTO addUser)
         {
+            string filePath = String.Empty;
+            if (addUser.Image != null)
+            {
+                string fileName = addUser.Image.FileName;
+                Guid GuidId = Guid.NewGuid();
+                filePath = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + GuidId + fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await addUser.Image.CopyToAsync(stream);
+                }
+                
+            }
+
             User user = new User()
             {
                 Id = 0,
@@ -36,7 +52,7 @@ namespace TaskSoliq.Application
                 LastName = addUser.LastName,
                 Age = addUser.Age,
                 EmployeeCategory = (int)addUser.EmployeeCategory,
-                ImageUrl = "Upload/images/binarsa.jpg",
+                ImageUrl = filePath,
                 Status = (int)Status.Created,
                 CreatedDate = DateTime.Now,
             };
@@ -240,6 +256,42 @@ namespace TaskSoliq.Application
                 return ex.Message;
             }
 
+        }
+
+        public async ValueTask<DataTable> ExportDatabaseToExcel()
+        {
+            DataTable dt = new DataTable("Grid");
+            dt.Columns.AddRange(new DataColumn[10] { new DataColumn("Id"),
+                                        new DataColumn("FirstName"),
+                                        new DataColumn("LastName"),
+                                        new DataColumn("Age"),
+                                        new DataColumn("EmployeeCategory"),
+                                        new DataColumn("ImageUrl"),
+                                        new DataColumn("Status"),
+                                        new DataColumn("CreatedDate"),
+                                        new DataColumn("ModifyDate"),
+                                        new DataColumn("DeletedDate"),
+            });
+
+            var users = from user in _turniketDb.Users.Take(40)
+                        select user;
+
+            foreach (var user in users)
+            {
+                dt.Rows.Add(user.Id,
+                            user.FirstName,
+                            user.LastName,
+                            user.Age,
+                            user.EmployeeCategory,
+                            user.ImageUrl,
+                            user.Status,
+                            user.CreatedDate,
+                            user.ModifyDate,
+                            user.DeletedDate
+                            );
+            }
+
+            return dt;
         }
     }
 }

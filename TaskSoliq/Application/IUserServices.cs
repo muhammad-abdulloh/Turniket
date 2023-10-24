@@ -1,4 +1,6 @@
-﻿using TaskSoliq.Domain.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
 
 namespace TaskSoliq.Application
@@ -14,5 +16,7 @@ namespace TaskSoliq.Application
         public ValueTask<bool> DeepDeleteUser(int Id);
 
         public ValueTask<string> UploadFile(IFormFile file);
+        public ValueTask<DataTable> ExportDatabaseToExcel();
+
     }
 }

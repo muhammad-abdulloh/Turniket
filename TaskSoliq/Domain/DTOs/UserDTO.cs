@@ -1,4 +1,5 @@
-﻿using TaskSoliq.Domain.Enums;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using TaskSoliq.Domain.Enums;
 
 namespace TaskSoliq.Domain.DTOs
 {
@@ -11,5 +12,8 @@ namespace TaskSoliq.Domain.DTOs
         public string? LastName { get; set; }
         public int? Age { get; set; }
         public EmployeeCategory? EmployeeCategory { get; set; }
+
+        [NotMapped]
+        public IFormFile? Image { get; set; }
     }
 }
