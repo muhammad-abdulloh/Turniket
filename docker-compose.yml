@@ -1,0 +1,27 @@
+version: '3.4'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server
+    environment:
+      SA_PASSWORD: "turniket@@test" # O'zgartiring
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - dbdata:/var/opt/mssql  
+
+  tasksoliq:
+    image: ${DOCKER_REGISTRY-}tasksoliq
+    build:
+      context: .
+      dockerfile: TaskSoliq/Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings=Server=.;Database=SoliqTurniketDb;persist security info=true;User=sa;Password=turniket@@test
+
+volumes:
+  dbdata:
