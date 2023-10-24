@@ -181,15 +181,12 @@ namespace TaskSoliq.Application
                 return user;
             }
             return null;
-
         }
 
         public async ValueTask<string> UploadFile(ExcelAndImage files)
         {
             try
             {
-                
-
                 // Check the File is received
                 if (files.ExcelData == null || files.Image == null)
                     return "File is Not Received...";
