@@ -42,7 +42,6 @@ namespace TaskSoliq.Application
                 {
                     await addUser.Image.CopyToAsync(stream);
                 }
-                
             }
 
             User user = new User()
