@@ -15,16 +15,11 @@ namespace TaskSoliq.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private TurniketDbContext _turniketDb;
         private IUserServices _userServices;
-        private readonly IWebHostEnvironment hostEnvironment;
 
-
-        public UsersController(IUserServices userServices, TurniketDbContext turniketDbContext, IWebHostEnvironment hostEnvironment)
+        public UsersController(IUserServices userServices)
         {
             _userServices = userServices;
-            _turniketDb = turniketDbContext;
-            this.hostEnvironment = hostEnvironment;
         }
 
         /// <summary>
@@ -183,8 +178,6 @@ namespace TaskSoliq.Controllers
             }
         }
 
-        // Upload Excel file
-
         /// <summary>
         /// Upload Excel File
         /// </summary>
@@ -193,46 +186,46 @@ namespace TaskSoliq.Controllers
         [HttpPost]
         public async ValueTask<IActionResult> ImportExcelToDataBase(IFormFile file)
         {
-            var result = await _userServices.UploadFile(file);
+           try
+            {
+                var result = await _userServices.UploadFile(file);
 
-            if (result == "Created")
-                return Ok("Muvaffaqiyati EXCEL ma'lumotlari bazaga saqlandi");
+                if (result == "Created")
+                    return Ok("Muvaffaqiyati EXCEL ma'lumotlari bazaga saqlandi");
 
-            return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
+        /// <summary>
+        /// Export database to excel
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         public async ValueTask<IActionResult> ExportDataBaseToExcel()
         {
-            DataTable result = await _userServices.ExportDatabaseToExcel();
-
-            using (XLWorkbook wb = new XLWorkbook())
+            try
             {
-                wb.Worksheets.Add(result);
-                using (MemoryStream stream = new MemoryStream())
+                DataTable result = await _userServices.ExportDatabaseToExcel();
+
+                using (XLWorkbook wb = new XLWorkbook())
                 {
-                    wb.SaveAs(stream);
-                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Grid.xlsx");
+                    wb.Worksheets.Add(result);
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        wb.SaveAs(stream);
+                        return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Grid.xlsx");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         
-        }
-
-        [HttpPost("UploadFile")]
-        public async ValueTask<IActionResult> UploadFileImage(IFormFile file)
-        {
-            if (file != null)
-            {
-                string fileName = file.FileName;
-                Guid GuidId = Guid.NewGuid();
-                string path = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + GuidId + fileName);
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-                return Ok(fileName);
-            }
-            return NotFound("Topilmadi file");
         }
 
     }
