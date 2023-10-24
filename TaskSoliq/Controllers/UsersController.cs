@@ -192,7 +192,7 @@ namespace TaskSoliq.Controllers
 
                 if (result == "Created")
                     return Ok("Muvaffaqiyati EXCEL ma'lumotlari bazaga saqlandi");
-
+                return BadRequest(result);
             }
             catch (Exception ex)
             {
