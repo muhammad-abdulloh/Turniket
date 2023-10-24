@@ -188,17 +188,7 @@ namespace TaskSoliq.Application
         {
             try
             {
-                string filePath = String.Empty;
-                if (files.Image != null)
-                {
-                    string fileName = files.Image.FileName;
-                    Guid GuidId = Guid.NewGuid();
-                    filePath = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + "userid" + GuidId + fileName);
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await files.Image.CopyToAsync(stream);
-                    }
-                }
+                
 
                 // Check the File is received
                 if (files.ExcelData == null || files.Image == null)
@@ -250,17 +240,28 @@ namespace TaskSoliq.Application
                         DataTable serviceDetails = ds.Tables[0];
                         for (int i = 1; i < serviceDetails.Rows.Count; i++)
                         {
+                            string filePath = String.Empty;
+                            if (files.Image != null)
+                            {
+                                string fileName = files.Image.FileName;
+                                Guid GuidId = Guid.NewGuid();
+                                filePath = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + "userid" + GuidId + fileName);
+                                using (var stream1 = new FileStream(filePath, FileMode.Create))
+                                {
+                                    await files.Image.CopyToAsync(stream1);
+                                }
+                            }
+
                             User details = new User();
 
                             details.FirstName = serviceDetails.Rows[i][0].ToString();
                             details.LastName = serviceDetails.Rows[i][1].ToString();
                             details.Age = Convert.ToInt32(serviceDetails.Rows[i][2].ToString());
                             details.EmployeeCategory = Convert.ToInt32(serviceDetails.Rows[i][3].ToString());
-                            details.ImageUrl = filePath;
+                            details.ImageUrl = serviceDetails.Rows[i][0].ToString() + serviceDetails.Rows[i][1].ToString() + filePath;
                             details.Status = (int)Status.Updated;
 
                             details.CreatedDate = DateTime.Now;
-
 
                             // Add the record in Database
                             await _turniketDb.Users.AddAsync(details);
