@@ -1,6 +1,4 @@
-﻿using ClosedXML.Excel;
-using ExcelDataReader;
-using Microsoft.AspNetCore.Mvc;
+﻿using ExcelDataReader;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using TaskSoliq.Domain.DTOs;
@@ -8,9 +6,7 @@ using TaskSoliq.Domain.Entities;
 using TaskSoliq.Domain.Enums;
 using TaskSoliq.Infrastructure;
 
-
 #pragma warning disable
-
 namespace TaskSoliq.Application
 {
     public class UserServices : IUserServices
@@ -37,7 +33,7 @@ namespace TaskSoliq.Application
             {
                 string fileName = addUser.Image.FileName;
                 Guid GuidId = Guid.NewGuid();
-                filePath = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + GuidId + fileName);
+                filePath = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + addUser.FirstName + "username" + GuidId + fileName);
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await addUser.Image.CopyToAsync(stream);
@@ -59,7 +55,6 @@ namespace TaskSoliq.Application
             await _turniketDb.SaveChangesAsync();
 
             return user;
-
         }
 
         /// <summary>
@@ -158,12 +153,25 @@ namespace TaskSoliq.Application
         {
             User user = await _turniketDb.Users.FirstOrDefaultAsync(x => x.Id == Id);
 
+            string filePath = String.Empty;
+            if (updatedModel.Image != null)
+            {
+                string fileName = updatedModel.Image.FileName;
+                Guid GuidId = Guid.NewGuid();
+                filePath = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + user.Id + "userid" + GuidId + fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await updatedModel.Image.CopyToAsync(stream);
+                }
+            }
+
             if (user != null)
             {
                 user.FirstName = updatedModel.FirstName;
                 user.LastName = updatedModel.LastName;
                 user.Age = updatedModel.Age;
                 user.EmployeeCategory = (int)updatedModel.EmployeeCategory;
+                user.ImageUrl = filePath;
                 user.Status = (int)Status.Updated;
                 user.ModifyDate = DateTime.Now;
 

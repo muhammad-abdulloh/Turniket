@@ -117,7 +117,7 @@ namespace TaskSoliq.Controllers
         /// <returns></returns>
         [HttpPut]
         [Route("{Id:int}")]
-        public async Task<IActionResult> UpdateUser([FromRoute] int Id, UserDTO updatedModel)
+        public async Task<IActionResult> UpdateUser([FromRoute] int Id,[FromForm] UserDTO updatedModel)
         {
             try
             {
