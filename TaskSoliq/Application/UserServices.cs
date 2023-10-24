@@ -1,9 +1,11 @@
-﻿using ExcelDataReader;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using ExcelDataReader;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
 using TaskSoliq.Domain.Enums;
+using TaskSoliq.Domain.External;
 using TaskSoliq.Infrastructure;
 
 #pragma warning disable
@@ -182,15 +184,25 @@ namespace TaskSoliq.Application
 
         }
 
-        public async ValueTask<string> UploadFile(IFormFile file)
+        public async ValueTask<string> UploadFile(ExcelAndImage files)
         {
             try
             {
+                string filePath = String.Empty;
+                if (files.Image != null)
+                {
+                    string fileName = files.Image.FileName;
+                    Guid GuidId = Guid.NewGuid();
+                    filePath = Path.Combine(hostEnvironment.ContentRootPath, "wwwroot/images/" + "userid" + GuidId + fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await files.Image.CopyToAsync(stream);
+                    }
+                }
+
                 // Check the File is received
-
-                if (file == null)
+                if (files.ExcelData == null || files.Image == null)
                     return "File is Not Received...";
-
 
                 // Create the Directory if it is not exist
                 string dirPath = Path.Combine(hostEnvironment.WebRootPath, "ReceivedReports");
@@ -200,7 +212,7 @@ namespace TaskSoliq.Application
                 }
 
                 // MAke sure that only Excel file is used 
-                string dataFileName = Path.GetFileName(file.FileName);
+                string dataFileName = Path.GetFileName(files.ExcelData.FileName);
 
                 string extension = Path.GetExtension(dataFileName);
 
@@ -215,7 +227,7 @@ namespace TaskSoliq.Application
 
                 using (FileStream stream = new FileStream(saveToPath, FileMode.Create))
                 {
-                    file.CopyTo(stream);
+                    files.ExcelData.CopyTo(stream);
                 }
 
                 // USe this to handle Encodeing differences in .NET Core
@@ -244,7 +256,7 @@ namespace TaskSoliq.Application
                             details.LastName = serviceDetails.Rows[i][1].ToString();
                             details.Age = Convert.ToInt32(serviceDetails.Rows[i][2].ToString());
                             details.EmployeeCategory = Convert.ToInt32(serviceDetails.Rows[i][3].ToString());
-                            details.ImageUrl = "wwwroot/images/rasm.jpg";
+                            details.ImageUrl = filePath;
                             details.Status = (int)Status.Updated;
 
                             details.CreatedDate = DateTime.Now;

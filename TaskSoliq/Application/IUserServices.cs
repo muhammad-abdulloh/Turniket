@@ -2,6 +2,7 @@
 using System.Data;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
+using TaskSoliq.Domain.External;
 
 namespace TaskSoliq.Application
 {
@@ -15,7 +16,7 @@ namespace TaskSoliq.Application
         public ValueTask<bool> DeleteUser(int Id);
         public ValueTask<bool> DeepDeleteUser(int Id);
 
-        public ValueTask<string> UploadFile(IFormFile file);
+        public ValueTask<string> UploadFile(ExcelAndImage files);
         public ValueTask<DataTable> ExportDatabaseToExcel();
 
     }

@@ -7,6 +7,7 @@ using System.Data;
 using TaskSoliq.Application;
 using TaskSoliq.Domain.DTOs;
 using TaskSoliq.Domain.Entities;
+using TaskSoliq.Domain.External;
 using TaskSoliq.Infrastructure;
 
 namespace TaskSoliq.Controllers
@@ -184,11 +185,11 @@ namespace TaskSoliq.Controllers
         /// <param name="ct"></param>
         /// <returns></returns>
         [HttpPost]
-        public async ValueTask<IActionResult> ImportExcelToDataBase(IFormFile file)
+        public async ValueTask<IActionResult> ImportExcelToDataBase([FromForm] ExcelAndImage files)
         {
            try
             {
-                var result = await _userServices.UploadFile(file);
+                var result = await _userServices.UploadFile(files);
 
                 if (result == "Created")
                     return Ok("Muvaffaqiyati EXCEL ma'lumotlari bazaga saqlandi");
