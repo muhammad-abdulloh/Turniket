@@ -2,9 +2,9 @@ version: '3.4'
 
 services:
   db:
-    image: mcr.microsoft.com/mssql/server #mcr.microsoft.com/mssql/server
+    image: mcr.microsoft.com/mssql/server 
     environment:
-      SA_PASSWORD: "turniket@@test" # O'zgartiring
+      SA_PASSWORD: "turniket@@test"
       ACCEPT_EULA: "Y"
     ports:
       - "1433:1433"
@@ -21,7 +21,7 @@ services:
     depends_on:
       - db
     environment:
-      - ConnectionStrings=Server=BILLIONER;Database=SoliqTurniketDb;persist security info=true; Trusted_Connection=True;    #User=sa;Password=turniket@@test
+      - ConnectionStrings=Server=BILLIONER;Database=SoliqTurniketDb;persist security info=true; User=sa;Password=turniket@@test;    
 
 volumes:
   dbdata:
