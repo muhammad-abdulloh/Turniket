@@ -56,8 +56,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<TurniketDbContext>();
-context.Database.EnsureCreated();
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<TurniketDbContext>();
+    context.Database.EnsureCreated();
+}
 
 app.UseHttpsRedirection();
 
